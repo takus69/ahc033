@@ -182,8 +182,17 @@ impl Monitor {
         false
     }
 
-    fn free_space(&self) -> (usize, usize) {
-        for i in (0..(self.n)).rev() {
+    fn free_space(&self, out_i: usize) -> (usize, usize) {
+        let mut target_i = vec![out_i];
+        for i in 1..self.n {
+            if out_i + i < self.n {
+                target_i.push(out_i+i);
+            }
+            if out_i >= i {
+                target_i.push(out_i-i);
+            }
+        }
+        for i in target_i {
             for j in (1..(self.n-1)).rev() {
                 let ai = self.get_board(i, j);
                 if ai < self.n*self.n {
@@ -331,8 +340,9 @@ impl Solver {
                     // println!("in_cnt: {:?}, out_cnt: {:?}", self.monitor.in_cnt, self.monitor.out_cnt);
                     let container = self.monitor.get_container_from_in(in_i, in_j);
                     let ai = container.id;
+                    let out_i = container.out_i;
                     // println!("ai: {}, in_i: {}, in_j: {}", ai, in_i, in_j);
-                    let pos = self.monitor.free_space();
+                    let pos = self.monitor.free_space(out_i);
                     self.monitor.r#move(ai, pos);
                 }
                 self.monitor.turn();
@@ -402,7 +412,8 @@ mod tests {
         }
 
         // free_space
-        assert_eq!(monitor.free_space(), (3, 3));
+        assert_eq!(monitor.free_space(4), (4, 3));
+        assert_eq!(monitor.free_space(1), (1, 3));
     
         // move_cnt
         assert_eq!(monitor.move_cnt(0), 12);
