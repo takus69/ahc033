@@ -1,5 +1,4 @@
 use proconio::input;
-use std::{collections::VecDeque, env::join_paths};
 
 #[derive(Clone)]
 struct Input {
@@ -159,7 +158,7 @@ impl Monitor {
     fn r#move(&mut self, ai: usize, pos: (usize, usize)) {
         let container = self.get_container_id(ai);
         let start = container.get_pos();
-        //  println!("remove ai: {}, start: {:?}, pos: {:?}", ai, start, pos);
+        // println!("remove ai: {}, start: {:?}, pos: {:?}", ai, start, pos);
         self.cranes[0].r#move(start);
         self.cranes[0].hold();
         self.cranes[0].r#move(pos);
@@ -184,7 +183,7 @@ impl Monitor {
     }
 
     fn free_space(&self) -> (usize, usize) {
-        for i in (1..(self.n-1)).rev() {
+        for i in (0..(self.n)).rev() {
             for j in (1..(self.n-1)).rev() {
                 let ai = self.get_board(i, j);
                 if ai < self.n*self.n {
@@ -345,9 +344,18 @@ impl Solver {
     }
 
     fn ans(&self) {
+        let mut score = 0;
         for crane in self.monitor.cranes.iter() {
             println!("{}", crane.move_s);
         }
+    }
+
+    fn result(&self) {
+        let mut score = 0;
+        for crane in self.monitor.cranes.iter() {
+            score = score.max(crane.move_s.len());
+        }
+        eprintln!("{{ \"score\": {} }}", score);
     }
 }
 
@@ -356,6 +364,7 @@ fn main() {
     let mut solver = Solver::new(input);
     solver.solve();
     solver.ans();
+    solver.result();
 }
 
 
